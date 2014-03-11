@@ -1,10 +1,9 @@
 // YOUR CODE HERE:
 
-var username = "Sid and Nancy";
-
+var userName = 'anonymous';
 
 var App = function(){
-  this.room = 'lobby';
+  this.room = '4chan';
 };
 
 App.prototype.init = function(){
@@ -33,7 +32,7 @@ App.prototype.send = function(message){
 $('#post').on('click', function(){
   var postText = $('#textarea').val();
   var message = {};
-  message.username = username;
+  message.username = userName;
   message.text = postText;
   message.roomname = app.room;
   console.log(message);
@@ -45,17 +44,17 @@ $('#post').on('click', function(){
 App.prototype.filteredDisplay = function(data){
    $('.messages li').remove();
     for (var i =0; i < data.results.length; i++){
-      if(data.results[i].roomname === this.room){
         var message = data.results[i].text;
-       //console.dir(message);
+        var username = data.results[i].username;
+       console.dir(message);
         if((message!==undefined)){
           if(message.match(/^[0-9a-zA-Z]{1,16}$/)){
-            $('.messages').append('<li>'+message+'</li>');
+            $('.messages').append('<li><a href ="#">'+username+"</a>: "+message+'</li>');
           } else {
             $('.messages').append('<li>HACK ATTEMPT</li>');
           }
         }
-      }
+
     }
   };
 
@@ -65,14 +64,13 @@ App.prototype.fetch = function(){
   $.ajax({
       url: 'https://api.parse.com/1/classes/chatterbox?order=-createdAt',
       type: 'GET',
-      data: JSON.stringify(),
+
+      data: where={'results':{'$lte':25}},
       contentType: 'application/json',
       success: function (data) {
-        console.log(data);
         self.filteredDisplay(data);
       },
       error: function (data) {
-        // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
         console.error('chatterbox: Failed to send message');
       }
     });
