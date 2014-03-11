@@ -12,11 +12,22 @@
 
   </head>
   <body>
+  <script type="text/javascript">
+  $(function(){
+    app.init();
+  });
+  </script>
     <div id="main">
-      <h1>chatterbox: You play by OUR rules!!!</h1>
-      <textarea id="textarea"></textarea>
-      <button id ='post'>post</button>
-      <ul class="messages"></ul>
+      <div class="post">
+        <textarea id="textarea"></textarea>
+        <button id ='post'>post</button>
+      </div>
+      <div>
+      <button id='seeFriends'>See Friends</button>
+      </div>
+      <div id="messageBox">
+        <div class="messages"></div>
+      </div>
     </div>
     <script src="scripts/config.js"></script>
     <script src="scripts/app.js"></script>
