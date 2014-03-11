@@ -1,5 +1,7 @@
 // YOUR CODE HERE:
 
+var username = "Sid and Nancy";
+
 
 var App = function(){
   this.room = 'lobby';
@@ -28,13 +30,16 @@ App.prototype.send = function(message){
 
 };
 
-$('#post').on("click", function(){
-//button event handler gets the text from the input,
-//templates the text into a "message" with the username
-//and the room we are in currently
-  console.log(('#textarea').text())
-  text = app.send('#textarea').text();
-})
+$('#post').on('click', function(){
+  var postText = $('#textarea').val();
+  var message = {};
+  message.username = username;
+  message.text = postText;
+  message.roomname = app.room;
+  console.log(message);
+  app.send(message);
+
+});
 
 
 App.prototype.filteredDisplay = function(data){
@@ -58,9 +63,9 @@ App.prototype.filteredDisplay = function(data){
 App.prototype.fetch = function(){
   var self = this;
   $.ajax({
-      url: 'https://api.parse.com/1/classes/chatterbox',
+      url: 'https://api.parse.com/1/classes/chatterbox?order=-createdAt',
       type: 'GET',
-      data: {order:'-createdAt'},
+      data: JSON.stringify(),
       contentType: 'application/json',
       success: function (data) {
         console.log(data);
