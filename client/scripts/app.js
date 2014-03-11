@@ -28,14 +28,21 @@ App.prototype.send = function(message){
 
 };
 
+$('#post').on("click", function(){
+//button event handler gets the text from the input,
+//templates the text into a "message" with the username
+//and the room we are in currently
+  console.log(('#textarea').text())
+  text = app.send('#textarea').text();
+})
+
 
 App.prototype.filteredDisplay = function(data){
    $('.messages li').remove();
     for (var i =0; i < data.results.length; i++){
-      console.log(data.results[i].roomname);
       if(data.results[i].roomname === this.room){
         var message = data.results[i].text;
-      // console.dir(message);
+       //console.dir(message);
         if((message!==undefined)){
           if(message.match(/^[0-9a-zA-Z]{1,16}$/)){
             $('.messages').append('<li>'+message+'</li>');
@@ -53,9 +60,10 @@ App.prototype.fetch = function(){
   $.ajax({
       url: 'https://api.parse.com/1/classes/chatterbox',
       type: 'GET',
-      data: JSON.stringify(),
+      data: {order:'-createdAt'},
       contentType: 'application/json',
       success: function (data) {
+        console.log(data);
         self.filteredDisplay(data);
       },
       error: function (data) {
@@ -65,10 +73,24 @@ App.prototype.fetch = function(){
     });
 };
 
+var User = function(username){
+  this.username = username;
+  this.friends = [];
+
+};
+
+User.prototype.addFriend = function(username){
+  this.friends.push(username);
+};
+
 
 var app = new App();
-// call init()
+// call init
 // setInterval(app.fetch, 3000);
 
-
+// make a user object with what poperties?
+// username
+// friends
+// current room?
+// message history?
 
