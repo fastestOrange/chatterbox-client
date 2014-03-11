@@ -12,6 +12,7 @@ App.prototype.init = function(){
 };
 
 App.prototype.send = function(message){
+  var self = this;
   $.ajax({
     // always use this url
     url: 'https://api.parse.com/1/classes/chatterbox',
@@ -20,14 +21,49 @@ App.prototype.send = function(message){
     contentType: 'application/json',
     success: function (data) {
       console.log('chatterbox: Message sent');
+      self.fetch();
     },
     error: function (data) {
       // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
       console.error('chatterbox: Failed to send message');
     }
   });
+};
+
+App.prototype.hackFilter = function(data){
+  var washedData = [];
+  for (var i =0; i < data.results.length; i++){
+    var message = data.results[i].text;
+    var username = data.results[i].username;
+    //console.dir(message);
+    if((message!==undefined)&&(username!==undefined)){
+      if(message.match(/^[0-9a-zA-Z]{1,16}$/)&&username.match(/^[0-9a-zA-Z]{1,16}$/)){
+        washedData.push(data.results[i]);
+      }else{
+        console.log(data.results[i]);
+      }
+    }
+  }
+};
+
+
+App.prototype.roomFilter = function(data, room){
+
+  var currentRoom = room;
+  var result = _.filter(data.results, function(item){
+    return item.roomname===currentRoom;
+  });
+  return result;
 
 };
+
+App.prototype.oneFriendFilter = function(data, friend){
+
+};
+
+App.prototype.allFriendsFilter = function(data){};
+
+
 
 $('#post').on('click', function(){
   var postText = $('#textarea').val();
@@ -40,51 +76,75 @@ $('#post').on('click', function(){
 
 });
 
+$('button .room').on('click', function(){
+  app.fetch(function(databack){
+    var cleanData = app.hackFilter(databack);
+    cleanData = app.roomFilter(cleanData, this.room);
+    app.displayData(cleanData);
+  });
+});
 
-App.prototype.filteredDisplay = function(data){
-   $('.messages li').remove();
+
+App.prototype.filteredDisplay = function(filter, data){
+
     for (var i =0; i < data.results.length; i++){
-        var message = data.results[i].text;
-        var username = data.results[i].username;
-       console.dir(message);
-        if((message!==undefined)){
-          if(message.match(/^[0-9a-zA-Z]{1,16}$/)){
-            $('.messages').append('<li><a href ="#">'+username+"</a>: "+message+'</li>');
-          } else {
-            $('.messages').append('<li>HACK ATTEMPT</li>');
-          }
-        }
+      var message = data.results[i].text;
+      var username = data.results[i].username;
+      //console.dir(message);
+      if((message!==undefined)&&(username!==undefined)){
+        if(message.match(/^[0-9a-zA-Z]{1,16}$/)&&username.match(/^[0-9a-zA-Z]{1,16}$/)){
 
+        } else {
+          //$('.messages').append('<li>HACK ATTEMPT</li>');
+          console.log(message);
+        }
+      }
     }
   };
 
+App.prototype.display = function(washedData){
+   $('.messages li').remove();
+   for( var i = 0; i < washedData.length; i++){
+     $('.messages').append('<li><a href ="#">'+username+'</a>: '+message+'</li>');
+   }
 
-App.prototype.fetch = function(){
-  var self = this;
+};
+
+
+App.prototype.fetch = function(callback){
   $.ajax({
       url: 'https://api.parse.com/1/classes/chatterbox?order=-createdAt',
       type: 'GET',
 
       data: where={'results':{'$lte':25}},
       contentType: 'application/json',
-      success: function (data) {
-        self.filteredDisplay(data);
-      },
+      success: callback,
       error: function (data) {
         console.error('chatterbox: Failed to send message');
       }
+
     });
 };
 
 var User = function(username){
   this.username = username;
-  this.friends = [];
+  this.friends = {};
 
 };
-
+// overwriting
+// {'biill': [message, message]}
 User.prototype.addFriend = function(username){
-  this.friends.push(username);
+  this.friends[username]=[];
+  //fetch messages
+  //filter by username
+  //as we filter push message array
+  //apply bold styling to our friends
+  //add event handler "forFriends"
 };
+//
+//event handler for clicking on unfriend will call addFriend
+//new event handler "forFriend"
+//forFriend will display all friends
 
 
 var app = new App();
