@@ -4,8 +4,6 @@
 var app = {};
 var userName = 'anonymous';
 
-
-
 app.init = function(){
   // get an array of rooms
   ///make some buttons based on that array
@@ -30,6 +28,7 @@ app.init = function(){
     });
   };
 
+
   app.fetch = function(callback){
     $.ajax({
         url: 'https://api.parse.com/1/classes/chatterbox?order=-createdAt',
@@ -41,9 +40,10 @@ app.init = function(){
         error: function (data) {
           console.error('chatterbox: Failed to send message');
         }
-
       });
   };
+
+
 
   app.hackFilter = function(data){
     var washedData = [];
@@ -59,14 +59,19 @@ app.init = function(){
         }
       }
     }
+    return washedData;
   };
 
 
   app.roomFilter = function(data, room){
 
     var currentRoom = room;
+
     var result = _.filter(data.results, function(item){
-      return item.roomname===currentRoom;
+      if(item!==undefined){
+        return item.roomname===currentRoom;
+      }
+
     });
     return result;
 
@@ -89,8 +94,6 @@ app.init = function(){
     return result;
   };
 
-
-
   $('#post').on('click', function(){
     var postText = $('#textarea').val();
     var message = {};
@@ -109,15 +112,37 @@ app.init = function(){
     });
   });
 
+  $('span .username').on('click', function(){
+    //get username from what we clicked on
+    //assing that value to username variable
+    app.fetch(function(data){
+      data = app.hackFilter(data);
+      data = app.oneFriendFilter(data, username);
+      app.display(data);
+    });
+  });
+
+  $('span .roomname').on('click', function(){
+    //get roomName from what we clicked on
+    //assing that value to roomName variable
+    app.fetch(function(data){
+      data = app.hackFilter(data);
+      data = app.roomFilter(data, roomName);
+      app.display(data);
+    });
+  });
+
+
   app.display = function(washedData){
-    $('.messages li').remove();
+    $('.messages span').remove();
     for( var i = 0; i < washedData.results.length; i++){
-    $('.messages').append('<span><a href ="#">'+washedData.results[i].username+'</a>: '+washedData.results[i].text+'</span>');
+    $('.messages').append('<span class="username"><a href ="#">'+washedData.results[i].username+'</a>: </span><span class="message">'+washedData.results[i].text+'</span><br><span class="roomname"><a href ="#">'+washedData.results[i].roomname+'</a></span><br>');
     ///apend roomnames to roomlist
     }
   };
-
 };
+
+
 
 var User = function(username){
   this.username = username;
